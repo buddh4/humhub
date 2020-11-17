@@ -12,26 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mariadb:
-        image: mariadb:latest
+      mysql:
+        image: mysql:5.7
         ports:
           - 3306
         env:
             MYSQL_ALLOW_EMPTY_PASSWORD: yes
             MYSQL_DATABASE: humhub_test
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+            MYSQL_ROOT_PASSWORD: root
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
 
-    - name: Verify MariaDB connection
-      env:
-        PORT: ${{ job.services.mariadb.ports[3306] }}
+    - name: Verify MySQL connection from host
       run: |
-        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
-          sleep 1
-        done
+        sudo apt-get install -y mysql-client
+        mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uroot --proot -e "SHOW DATABASES"
 
     - name: Validate composer.json and composer.lock
       run: composer validate

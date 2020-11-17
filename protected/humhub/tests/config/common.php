@@ -3,7 +3,7 @@
 return [
     'components' => [
         'db' => [
-            'dsn' => 'mysql:host=localhost;dbname=humhub_test',
+            'dsn' => 'mysql:host=127.0.0.1 ;dbname=humhub_test',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',
