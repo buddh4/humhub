@@ -1,0 +1,81 @@
+name: PHP Codeception Tests
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+            MYSQL_ALLOW_EMPTY_PASSWORD: yes
+            MYSQL_DATABASE: humhub_test
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      
+    - name: Verify MariaDB connection
+      env:
+        PORT: ${{ job.services.mariadb.ports[3306] }}
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          sleep 1
+        done
+        
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install composer dependencies
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Install npm dependencies
+      run: npm install
+    
+    - name: Install Grunt
+      run: npm install -g grunt-cli
+    
+    - name: Build production assets
+      run: grunt build-assets
+    
+    - name: Run migrations
+      run: php protected/humhub/tests/codeception/bin/yii migrate/up --includeModuleMigrations=1 --interactive=0
+    
+    - name: Run installer
+      run: php protected/humhub/tests/codeception/bin/yii installer/auto
+      
+    - name: Rebuild search index
+      run: php protected/humhub/tests/codeception/bin/yii search/rebuild
+    
+    - name: Run test server
+      run: php --server 127.0.0.1:8080
+    
+    - name: Valdiate test server
+      run: sleep 5 && curl --fail --head http://127.0.0.1:8080/index-test.php
+    
+    - name: Build test suite
+      run: php protected/vendor/bin/codecept build protected/humhub/tests
+    
+    - name: Run tests suite
+      run: php protected/vendor/bin/codeception run protected/humhub/tests --env github
+      
