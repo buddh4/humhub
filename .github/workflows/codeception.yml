@@ -68,7 +68,7 @@ jobs:
       run: php --server 127.0.0.1:8080 &>/tmp/phpserver.log &
 
     - name: Setup chromedriver
-      run: chromedriver --url-base=/wd/hub
+      run: chromedriver --url-base=/wd/hub &
 
     - name: Valdiate test server
       run: sleep 5 && curl --fail --head http://127.0.0.1:8080/index-test.php
