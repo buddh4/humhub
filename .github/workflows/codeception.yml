@@ -19,12 +19,12 @@ jobs:
         env:
             MYSQL_ALLOW_EMPTY_PASSWORD: yes
             MYSQL_DATABASE: humhub_test
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
-      
+
     - name: Verify MariaDB connection
       env:
         PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -32,7 +32,7 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
           sleep 1
         done
-        
+
     - name: Validate composer.json and composer.lock
       run: composer validate
 
@@ -51,31 +51,31 @@ jobs:
 
     - name: Install npm dependencies
       run: npm install
-    
+
     - name: Install Grunt
       run: npm install -g grunt-cli
-    
+
     - name: Build production assets
       run: grunt build-assets
-    
+
     - name: Run migrations
       run: php protected/humhub/tests/codeception/bin/yii migrate/up --includeModuleMigrations=1 --interactive=0
-    
+
     - name: Run installer
       run: php protected/humhub/tests/codeception/bin/yii installer/auto
-      
+
     - name: Rebuild search index
       run: php protected/humhub/tests/codeception/bin/yii search/rebuild
-    
+
     - name: Run test server
       run: php --server 127.0.0.1:8080
-    
+
     - name: Valdiate test server
       run: sleep 5 && curl --fail --head http://127.0.0.1:8080/index-test.php
-    
+
     - name: Build test suite
       run: php protected/vendor/bin/codecept build protected/humhub/tests
-    
+
     - name: Run tests suite
       run: php protected/vendor/bin/codeception run protected/humhub/tests --env github
-      
+
