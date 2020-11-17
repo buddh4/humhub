@@ -4,7 +4,7 @@ return [
     'components' => [
         'db' => [
             'dsn' => 'mysql:host=localhost;dbname=humhub_test',
-            'username' => 'travis',
+            'username' => 'root',
             'password' => '',
             'charset' => 'utf8',
             'attributes' => [
