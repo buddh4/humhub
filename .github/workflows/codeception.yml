@@ -70,9 +70,6 @@ jobs:
     - name: Valdiate test server
       run: sleep 5 && curl --fail --head http://127.0.0.1:8080/index-test.php
 
-    - name: Build test suite
-      run: php protected/vendor/bin/codecept build protected/humhub/tests
-
-    - name: Run tests suite
-      run: php protected/vendor/bin/codeception run protected/humhub/tests --env github
+    - name: Run test suite
+      run: grunt test -build -env=github
 
