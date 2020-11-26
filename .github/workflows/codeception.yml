@@ -116,4 +116,3 @@ jobs:
 
         - name: Run test suite
           run: grunt test -build -env=github
-
