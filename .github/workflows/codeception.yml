@@ -26,7 +26,7 @@ jobs:
                     - "7.4"
 
                 mysql-version:
-                    - "latest"
+                    - "5.7"
 
         services:
             mysql:
