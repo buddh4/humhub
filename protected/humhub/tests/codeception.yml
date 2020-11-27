@@ -10,7 +10,6 @@ coverage:
   - ../compat/*
   - ../components/*
   - ../controllers/*
-  - ../events/*
   - ../libs/*
   - ../models/*
 extensions:
