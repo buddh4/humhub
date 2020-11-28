@@ -8,7 +8,7 @@ jobs:
     tests:
         name: PHP ${{ matrix.php-version }}-mysql-${{ matrix.mysql-version }}
         env:
-            extensions: curl, intl, pdo, pdo_mysql, zip, exif, fileinfo, mbstring, gd, ldap
+            extensions: curl, intl, pdo, pdo_mysql, zip, exif, fileinfo, mbstring, gd, ext-ldap
             key: cache-v1
 
         runs-on: ${{ matrix.os }}
